@@ -1,24 +1,38 @@
-name: Build ARM64
+name: Build Image
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["dev"]
+    inputs:
+      type:
+        type: choice
+        description: "Image"
+        required: true
+        default: "chromium"
+        options: ["chromium", "base"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout browserless
+      - name: Getting browserless
         uses: actions/checkout@v4
         with:
           repository: "browserless/browserless"
+          ref: "b0cc4c73d299bc7a7e5c6f7c1ebe19ac62818253"
+          fetch-depth: 0
+          submodules: recursive
+          path: ./browserless
+
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+        with:
+          path: ./browserless-arm
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: arm64
+          platforms: arm/v7
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -30,25 +44,23 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Base
+        if: ${{ github.event.inputs.type }} == 'base'
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./docker/base/Dockerfile
+          context: ./browserless
+          file: ./browserless-arm/Dockerfile.base
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/browserless-arm-base:latest
-          platforms: linux/arm64
-
-      - name: Update Chromium Dockerfile
-        run: |
-          sed -i 's|ghcr.io/browserless/base|${{ secrets.DOCKER_USERNAME }}/browserless-arm-base|g' ./docker/chromium/Dockerfile
+          platforms: linux/arm/v7
 
       - name: Build Chromium
+        if: ${{ github.event.inputs.type }} == 'chromium'
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./docker/chromium/Dockerfile
+          context: ./browserless
+          file: ./browserless-arm/Dockerfile.chromium
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/browserless-arm-chromium:latest
-          platforms: linux/arm64
+          platforms: linux/arm/v7
           build-args: |
             VERSION=latest
