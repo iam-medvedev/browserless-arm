@@ -32,6 +32,8 @@ RUN echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula sele
 
 RUN apt-get -y install firefox
 
+RUN sed -i "31s|.*|  protected executablePath = () => '$(which firefox)';|" src/browsers/browsers.playwright.ts
+
 RUN npm run build &&\
   npm prune production &&\
   chown -R blessuser:blessuser $APP_DIR &&\

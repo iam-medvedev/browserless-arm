@@ -10,7 +10,7 @@ project for the ARMv7 architecture.
 The image is available on Docker Hub:
 
 - [iammedvedev/browserless-arm-base:latest](https://hub.docker.com/r/iammedvedev/browserless-arm-base)
-- [iammedvedev/browserless-arm-chromium:latest](https://hub.docker.com/r/iammedvedev/browserless-arm-chromium)
+- [iammedvedev/browserless-arm-firefox:latest](https://hub.docker.com/r/iammedvedev/browserless-arm-firefox)
 
 ## Usage
 
@@ -19,7 +19,7 @@ The image is available on Docker Hub:
 You can pull and run the ARMv7 browserless image using Docker with the following command:
 
 ```sh
-docker run -p 3000:3000 iammedvedev/browserless-arm-chromium:latest
+docker run -p 3000:3000 iammedvedev/browserless-arm-firefox:latest
 ```
 
 ### Docker Compose
@@ -31,7 +31,7 @@ Create a `docker-compose.yml` file with the following content:
 version: "3"
 services:
   browserless:
-    image: iammedvedev/browserless-arm-chromium:latest
+    image: iammedvedev/browserless-arm-firefox:latest
     ports:
       - "3000:3000"
 ```
