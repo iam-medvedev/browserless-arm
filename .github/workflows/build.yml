@@ -8,12 +8,11 @@ on:
         description: "Image"
         required: true
         default: "chromium"
-        options: ["chromium", "base"]
+        options: ["base", "chromium", "firefox"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Getting browserless
         uses: actions/checkout@v4
@@ -44,7 +43,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Base
-        if: ${{ github.event.inputs.type }} == 'base'
+        if: ${{ github.event.inputs.type == 'base' }}
         uses: docker/build-push-action@v6
         with:
           context: ./browserless
@@ -54,13 +53,25 @@ jobs:
           platforms: linux/arm/v7
 
       - name: Build Chromium
-        if: ${{ github.event.inputs.type }} == 'chromium'
+        if: ${{ github.event.inputs.type == 'chromium' }}
         uses: docker/build-push-action@v6
         with:
           context: ./browserless
           file: ./browserless-arm/Dockerfile.chromium
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/browserless-arm-chromium:latest
+          platforms: linux/arm/v7
+          build-args: |
+            VERSION=latest
+
+      - name: Build Firefox
+        if: ${{ github.event.inputs.type == 'firefox' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./browserless
+          file: ./browserless-arm/Dockerfile.firefox
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/browserless-arm-firefox:latest
           platforms: linux/arm/v7
           build-args: |
             VERSION=latest
